@@ -1,0 +1,16 @@
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\Asterix.exe
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\Asterix.deps.json
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\Asterix.runtimeconfig.json
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\Asterix.dll
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\Asterix.pdb
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.Form1.resources
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.csproj.GenerateResource.cache
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.AssemblyInfoInputs.cache
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.AssemblyInfo.cs
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.csproj.CoreCompileInputs.cache
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.dll
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\refint\Asterix.dll
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.pdb
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.genruntimeconfig.cache
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\ref\Asterix.dll
