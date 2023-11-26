@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
+using MultiCAT6.Utils;
 
 namespace Asterix
 {
@@ -13,6 +14,12 @@ namespace Asterix
         public int long_fspec { get; set; }
         public byte[] datos { get; set; }
         public string description { get; set; }
+    }
+    public struct geodesicCoordinates
+    {
+        public double latitude { set; get; }
+        public double longitude { set; get; }
+        public double height { set; get; }
     }
     public struct time
     {
@@ -109,9 +116,27 @@ namespace Asterix
 
     public struct BDSRegisterData
     {
-        public string[] data { get; set; }
-        public string[] address_1 { get; set; }
-        public string[] address_2 { get; set; }
+        public string MCP_FCU_selectedAltitude { get; set; }
+        public string FMS_selectedAltitude { get; set; }
+        public string barometricPressureSetting { get; set; }
+        public string VNAV_mode { get; set; }
+        public string altHold_mode { get; set; }
+        public string approach_mode { get; set; }
+        public string targetAltSource { get; set; }
+
+        // BDS 5,0
+        public string rollAngle { get; set; }
+        public string trueTrackAngle { get; set; }
+        public string groundSpeed { get; set; }
+        public string trackAngleRate { get; set; }
+        public string trueAirspeed { get; set; }
+
+        // BDS 6,0
+        public string magnetigHeading { get; set; }
+        public string indicatedAirspeed { get; set; }
+        public string MACH { get; set; }
+        public string barometricAltitudeRate { get; set; }
+        public string intertialVerticalVelocity { get; set; }
         public string description { get; set; }
 
     }
@@ -123,6 +148,7 @@ namespace Asterix
         public targetReportDescriptor TRD { get; set; }
         public double rho_polar { get; set; } // NM
         public double theta_polar { get; set; } // grados
+        public geodesicCoordinates coordenadasGeodesicas { get; set; }
         public bool mode3A_V { get; set; }
         public bool mode3A_G { get; set; }
         public bool mode3A_L { get; set; }
@@ -130,6 +156,7 @@ namespace Asterix
         public bool flightLevel_V { get; set; }
         public bool flightLevel_G { get; set; }
         public double flightLevel { get; set; }
+        public double realAltitude { get; set; }
         public radarPlotCharacteristics RPC { get; set; }
         public string AC_address { get; set; }
         public string AC_identification { get; set; }
@@ -143,7 +170,7 @@ namespace Asterix
         public acasStatus a_status { get; set; }
         public List<string> description { get; set; }
         public List<string> DataItem { get; set; }
-        public List<string> FRN {  get; set; }
+        public List<string> FRN { get; set; }
 
 
     }
@@ -152,10 +179,11 @@ namespace Asterix
         private Dictionary<string, dataRecord_struct> miDiccionario = new Dictionary<string, dataRecord_struct>();
 
         private Dictionary<string, trackInfo_struct> trackInfoDictionary = new Dictionary<string, trackInfo_struct>();
-        public List<dataRecord_struct> miListaDataRecord=new List<dataRecord_struct>();
-        public List<trackInfo_struct> miListaTrackInfo=new List<trackInfo_struct>();
+        public List<dataRecord_struct> miListaDataRecord = new List<dataRecord_struct>();
+        public List<trackInfo_struct> miListaTrackInfo = new List<trackInfo_struct>();
         public List<int> dataFieldsP = new List<int>();
-        
+        public string pathFile = "";
+
 
 
         public Form1()
@@ -187,6 +215,7 @@ namespace Asterix
                     {
                         // Guarda la ruta del archivo seleccionado en una variable
                         string path = openFileDialog.FileName;
+                        pathFile = path;
                         // Hacer lo que necesites con la ruta del archivo
                         // Por ejemplo, puedes almacenarla en una variable o mostrarla en un TextBox.
                         textBox1.Text = path;
@@ -202,7 +231,7 @@ namespace Asterix
                         MessageBox.Show($"Longitud del fichero: {longitud_fichero}");
                         int rowies = 0;
                         //Extraido del while de debajo para pruebas, debe ir esto: direccionDataRecordProcesando < fileBytes.Length
-                        while (numeración < 4) //Nos permite crear una lista con todos los data records de la categoría 48
+                        while (numeración<4) //Nos permite crear una lista con todos los data records de la categoría 48
                         {
 
                             longitudDataRecordProcesando = fileBytes[direccionDataRecordProcesando + 2];
@@ -218,18 +247,14 @@ namespace Asterix
                                 // Llama al evento CellClick del DataGridView después de agregar la fila
                                 dataRecordTable_CellClick(dataRecordTable, new DataGridViewCellEventArgs(0, rowies - 1));
                                 //Recuperamos todos los bytes del data record
-                                byte[] dataRecord = new byte[longitudDataRecordProcesando];
-                                int j;
-                                for (j = 6; j < dataRecord.Length; j++)
-                                {
-                                    dataRecord[j - 6] = fileBytes[direccionDataRecordProcesando + j];
-                                }
+                                int j=0;
+                                
 
                                 //Primero de todo averiguamos la longitud del FSPEC
 
 
                                 //Recuperamos todos los bytes del FSPEC
-                                j = 0;
+                               
                                 int longitudFSPEC = 1;
                                 int punteroFSPEC = direccionDataRecordProcesando + 3;
                                 byte byteFSPEC_evaluado;
@@ -251,7 +276,12 @@ namespace Asterix
                                         sigue = false;
                                     }
                                 }
-
+                                //Recuperamos todos los bytes del data record
+                                byte[] dataRecord = new byte[longitudDataRecordProcesando - 3];
+                                for (j = 3 + longitudFSPEC; j < dataRecord.Length; j++)
+                                {
+                                    dataRecord[j - (3 + longitudFSPEC)] = fileBytes[direccionDataRecordProcesando + j];
+                                }
                                 //Recuperamos todos los bytes del FSPEC
                                 byte[] fspecActual = new byte[longitudFSPEC];
                                 for (j = 0; j < fspecActual.Length; j++)
@@ -274,7 +304,7 @@ namespace Asterix
                                 // Agrega el elemento al diccionario
                                 miListaDataRecord.Add(item);
                                 miDiccionario.Add(clave, item);
-                                
+
 
                             }
                             else //Este else irá fuera por términos de velocidad
@@ -320,6 +350,7 @@ namespace Asterix
                                 }
                                 j++;
                             }
+                            
                             dataFieldsP = dataFields_presentes;
 
                             //Una vez listados los data fields presentes, nos recorremos la lista para ir rellenando la lista de tracks:
@@ -476,6 +507,9 @@ namespace Asterix
                                         if (longitudDatafield == 1) // Continuamos sólo si el datafield es mayor a 1 byte
                                         {
                                             track.TRD = trd; // Finalmente añadimos al campo TRD el objeto trd con todos los campos
+                                            track.FRN.Add("3");
+                                            track.DataItem.Add("I048/020");
+                                            track.description.Add("Target Report Descriptor");
                                             puntoProcesado += 1;
                                             break;
                                         }
@@ -511,6 +545,9 @@ namespace Asterix
                                         if (longitudDatafield == 2) // Continuamos sólo si el datafield es mayor a 2 bytes
                                         {
                                             track.TRD = trd; // Finalmente añadimos al campo TRD el objeto trd con todos los campos
+                                            track.FRN.Add("3");
+                                            track.DataItem.Add("I048/020");
+                                            track.description.Add("Target Report Descriptor");
                                             puntoProcesado += 2;
                                             break;
                                         }
@@ -657,7 +694,19 @@ namespace Asterix
                                         double total = (bitsDeInteres << 8) | (datosProcesando[puntoProcesado + 1]);
                                         double flightLevel_FL = total / 4;
 
-                                        track.flightLevel = flightLevel_FL;
+                                        /*if (i == 1603)
+                                        {
+                                            Console.WriteLine("Hola");
+                                        }*/
+
+                                        if ((datosProcesando[puntoProcesado] & 0b00100000) != 0)
+                                        {
+                                            track.flightLevel = convertirDeComplementoA2_short(((int)total));
+                                        }
+                                        else
+                                        {
+                                            track.flightLevel = flightLevel_FL;
+                                        }
 
                                         track.flightLevel_V = (datosProcesando[puntoProcesado] & (1 << 7)) != 0;
                                         track.flightLevel_G = (datosProcesando[puntoProcesado] & (1 << 6)) != 0;
@@ -665,8 +714,9 @@ namespace Asterix
                                         track.DataItem.Add("I048/090");
                                         track.description.Add("Flight Level in Binary Representation");
                                         puntoProcesado += 2;
-
+                                        //Console.WriteLine($"Flight level: {flightLevel_FL}");
                                         break;
+                                        
                                     // Radar Plot Characteristics :/
                                     case 7:
                                         //MessageBox.Show("Caso 7:Radar Plot Characteristics");
@@ -983,26 +1033,13 @@ namespace Asterix
                                         break;
                                     // BDS Register Data
                                     case 10:
-                                        if (track.description == null)
-                                        {
-                                            track.description = new List<string>();
-                                        }
-                                        if (track.FRN == null)
-                                        {
-                                            track.FRN = new List<string>();
-                                        }
-                                        if (track.DataItem == null)
-                                        {
-                                            track.DataItem = new List<string>();
-                                        }
-                                        //MessageBox.Show("Caso 10:BDS Register Data");
+
                                         // Primero nos buscamos el Repetition Factor:
                                         REP = datosProcesando[puntoProcesado];
 
-                                        // Nos creamos un vector de strings con los items que indique el REP:
-                                        string[] listaData = new string[REP];
-                                        string[] listaAddress_1 = new string[REP];
-                                        string[] listaAddress_2 = new string[REP];
+                                        byte byteBDS;
+                                        int BDS1;
+                                        int BDS2;
 
                                         BDSRegisterData objetoBDS = new BDSRegisterData();
 
@@ -1010,39 +1047,249 @@ namespace Asterix
 
                                         h = 0;
 
-                                        string dataIntermedio;
-                                        string dataFinal;
+                                        int dataIntermedio;
+                                        int dataFinal;
 
                                         while (h < REP)
                                         {
-                                            dataFinal = "";
-                                            for (f = 0; f < 7; f++)
+                                            // Solo procesaremos los datos si BDS1 = 4, 5, 6 y BDS2 = 0. Por lo que primero recuperamos los campos
+                                            // BDS1 y BDS2:
+
+                                            byteBDS = datosProcesando[puntoProcesado + 7];
+
+                                            BDS1 = (byteBDS & 0b11110000) >> 4;
+                                            BDS2 = (byteBDS & 0b00001111);
+
+                                            if ((BDS1 == 4) && (BDS2 == 0))
                                             {
-                                                dataIntermedio = datosProcesando[puntoProcesado + f].ToString("X");
-                                                dataFinal = dataFinal + dataIntermedio;
+                                                if ((datosProcesando[puntoProcesado] & (1 << 7)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado] & 0b01111111) << 5 | (datosProcesando[puntoProcesado + 1] & 0b11111000) >> 3;
+                                                    dataFinal = dataIntermedio * 16;
+                                                    objetoBDS.MCP_FCU_selectedAltitude = dataFinal.ToString();
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.MCP_FCU_selectedAltitude = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 1] & (1 << 2)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = ((datosProcesando[puntoProcesado + 1] & 0b00000011) << 10 | datosProcesando[puntoProcesado + 2] << 2 | (datosProcesando[puntoProcesado + 3] & 0b11000000) >> 6);
+                                                    dataFinal = dataIntermedio * 16;
+                                                    objetoBDS.FMS_selectedAltitude = dataFinal.ToString();
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.FMS_selectedAltitude = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 3] & (1 << 5)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = ((datosProcesando[puntoProcesado + 3] & 0b00011111) << 7 | (datosProcesando[puntoProcesado + 4] & 0b11111110) >> 1);
+                                                    objetoBDS.barometricPressureSetting = ((dataIntermedio * 0.1) + 800).ToString();
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.barometricPressureSetting = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 5] & (1 << 0)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    objetoBDS.VNAV_mode = ((datosProcesando[puntoProcesado + 6] & (1 << 7)) != 0).ToString();
+                                                    objetoBDS.altHold_mode = ((datosProcesando[puntoProcesado + 6] & (1 << 6)) != 0).ToString();
+                                                    objetoBDS.approach_mode = ((datosProcesando[puntoProcesado + 6] & (1 << 5)) != 0).ToString();
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.VNAV_mode = "--";
+                                                    objetoBDS.altHold_mode = "--";
+                                                    objetoBDS.approach_mode = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 6] & (1 << 2)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 6] & 0b00000011);
+                                                    objetoBDS.targetAltSource = dataIntermedio.ToString();
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.targetAltSource = "--";
+                                                }
                                             }
-                                            listaData[h] = dataFinal;
 
-                                            puntoProcesado += 7;
+                                            if ((BDS1 == 5) && (BDS2 == 0))
+                                            {
+                                                if ((datosProcesando[puntoProcesado] & (1 << 7)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado] & 0b00111111) << 3 | (datosProcesando[puntoProcesado + 1] & 0b00000111);
+                                                    if ((datosProcesando[puntoProcesado] & (1 << 6)) != 0) // Comprobamos si es negativo
+                                                    {
+                                                        objetoBDS.rollAngle = (-1 * dataIntermedio * (45.0 / 256)).ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        objetoBDS.rollAngle = (dataIntermedio * (45.0 / 256)).ToString();
+                                                    }
 
-                                            listaAddress_1[h] = datosProcesando[puntoProcesado].ToString("X");
-                                            listaAddress_2[h] = datosProcesando[puntoProcesado + 1].ToString("X");
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.rollAngle = "--";
+                                                }
 
-                                            puntoProcesado += 2;
+                                                if ((datosProcesando[puntoProcesado + 1] & (1 << 4)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 1] & 0b00000111) << 7 | (datosProcesando[puntoProcesado + 2] & 0b11111110) >> 1;
+                                                    if ((datosProcesando[puntoProcesado + 1] & (1 << 3)) != 0) // Comprobamos si es negativo
+                                                    {
+                                                        objetoBDS.trueTrackAngle = (360 - dataIntermedio * (90.0 / 512)).ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        objetoBDS.trueTrackAngle = (dataIntermedio * (90.0 / 512)).ToString();
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.trueTrackAngle = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 2] & (1 << 0)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 3] << 2) | (datosProcesando[puntoProcesado + 4] & 0b11000000) >> 6;
+
+                                                    objetoBDS.groundSpeed = (dataIntermedio * (1024 / 512)).ToString();
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.groundSpeed = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 4] & (1 << 5)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 4] & 0b11110000) << 1 | (datosProcesando[puntoProcesado + 5] & 0b11111000) >> 3;
+                                                    if ((datosProcesando[puntoProcesado + 4] & (1 << 4)) != 0) // Comprobamos si es negativo
+                                                    {
+                                                        objetoBDS.trackAngleRate = (-1 * dataIntermedio * (8.0 / 256)).ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        objetoBDS.trackAngleRate = (dataIntermedio * (8.0 / 256)).ToString();
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.trackAngleRate = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 5] & (1 << 2)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 5] & 0b11000000) << 2 | (datosProcesando[puntoProcesado + 6]);
+
+                                                    objetoBDS.trueAirspeed = (dataIntermedio * 2).ToString();
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.trueAirspeed = "--";
+                                                }
+                                            }
+
+                                            if ((BDS1 == 6) && (BDS2 == 0))
+                                            {
+                                                if ((datosProcesando[puntoProcesado] & (1 << 7)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado] & 0b00111111) << 4 | (datosProcesando[puntoProcesado + 1] & 0b11110000) >> 4;
+                                                    if ((datosProcesando[puntoProcesado] & (1 << 6)) != 0) // Comprobamos si es negativo
+                                                    {
+                                                        objetoBDS.magnetigHeading = (360 - dataIntermedio * (90.0 / 512)).ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        objetoBDS.magnetigHeading = (dataIntermedio * (90.0 / 512)).ToString();
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.magnetigHeading = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 1] & (1 << 3)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 1] & 0b00000111) << 7 | (datosProcesando[puntoProcesado + 2] & 0b11111110) >> 1;
+
+                                                    objetoBDS.indicatedAirspeed = dataIntermedio.ToString();
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.indicatedAirspeed = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 2] & (1 << 0)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 3] << 2) | (datosProcesando[puntoProcesado + 4] & 0b11000000) >> 6;
+
+                                                    objetoBDS.MACH = (dataIntermedio * (2.048 / 512)).ToString();
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.MACH = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 4] & (1 << 5)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 4] & 0b00001111) << 5 | (datosProcesando[puntoProcesado + 5] & 0b11111000) >> 3;
+                                                    if ((datosProcesando[puntoProcesado + 4] & (1 << 4)) != 0) // Comprobamos si es negativo
+                                                    {
+                                                        objetoBDS.barometricAltitudeRate = (-1 * dataIntermedio * (8192.0 / 256)).ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        objetoBDS.barometricAltitudeRate = (dataIntermedio * (8192.0 / 256)).ToString();
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.barometricAltitudeRate = "--";
+                                                }
+
+                                                if ((datosProcesando[puntoProcesado + 5] & (1 << 2)) != 0) // Comprobamos el status del campo
+                                                {
+                                                    dataIntermedio = (datosProcesando[puntoProcesado + 5] & 0b00000001) << 8 | (datosProcesando[puntoProcesado + 6]);
+                                                    if ((datosProcesando[puntoProcesado + 5] & (1 << 1)) != 0) // Comprobamos si es negativo
+                                                    {
+                                                        objetoBDS.intertialVerticalVelocity = (-1 * dataIntermedio * (8192.0 / 256)).ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        objetoBDS.intertialVerticalVelocity = (dataIntermedio * (8192.0 / 256)).ToString();
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    objetoBDS.intertialVerticalVelocity = "--";
+                                                }
+                                            }
+                                            puntoProcesado += 8;
                                             h++;
                                         }
-
-                                        objetoBDS.data = listaData;
-                                        objetoBDS.address_1 = listaAddress_1;
-                                        objetoBDS.address_2 = listaAddress_2;
 
                                         track.BDS_rData = objetoBDS;
                                         track.FRN.Add("10");
                                         track.DataItem.Add("I048/250");
                                         track.description.Add("Mode S MB Data");
 
-
                                         break;
+                                        
                                     //Track Number
                                     case 11:
                                         if (track.description == null)
@@ -1510,16 +1757,45 @@ namespace Asterix
                                         break;
                                     default:
                                         //Console.WriteLine("Data field fuera de rango");
-                                       // Console.WriteLine("Presiona Enter para continuar...");
+                                        // Console.WriteLine("Presiona Enter para continuar...");
                                         //Console.ReadLine(); // Espera a que se presione Enter
                                         break;
                                 }
-     
+
+                            }
+                            // Finalmente nos calculamos el valor de altitud real, y si estamos por debajo de 6000ft realizamos la corrección:
+
+                            if (track.flightLevel < 60)
+                            {
+                                if (track.BDS_rData.barometricPressureSetting == "--" || track.BDS_rData.barometricPressureSetting == "")
+                                {
+                                    track.realAltitude = track.flightLevel * 100 + (1013.25 - 1013.25) * 30;
+                                }
+                                else
+                                {
+                                    track.realAltitude = track.flightLevel * 100 + (Convert.ToDouble(track.BDS_rData.barometricPressureSetting) - 1013.25) * 30;
+                                }
+
+                            }
+                            else
+                            {
+                                track.realAltitude = track.flightLevel * 100;
                             }
 
+                            CoordinatesWGS84 aircraftCoordinates = new CoordinatesWGS84();
+
+                            geodesicCoordinates track_geodesicCoordinates = new geodesicCoordinates();
+
+                            aircraftCoordinates = coordinatesTransformation(track.rho_polar, track.theta_polar, track.realAltitude);
+
+                            track_geodesicCoordinates.latitude = aircraftCoordinates.Lat * (180 / Math.PI);
+                            track_geodesicCoordinates.longitude = aircraftCoordinates.Lon * (180 / Math.PI);
+                            track_geodesicCoordinates.height = aircraftCoordinates.Height;
+
+                            track.coordenadasGeodesicas = track_geodesicCoordinates;
                             miListaTrackInfo.Add(track);
                             trackInfoDictionary.Add((i + 1).ToString(), track);
-                            
+
                             i++;
                         }
                     }
@@ -1545,27 +1821,129 @@ namespace Asterix
                     }
                     static int convertirDeComplementoA2_short(int byteComplementoA2)
                     {
-                        int valor_covnertido = 1; // Si la función acaba devolviendo 1, hay un error puesto que debe ser negativo; 
+                        int valor_convertido = 1; // Si la función acaba devolviendo 1, hay un error puesto que debe ser negativo;
 
-                        // Primero invertimos todos los bits y le sumamos 1:
-                        short intermedio = (short)~byteComplementoA2;
-                        intermedio += 1;
+                        // Antes de nada, separamos el short en dos bytes, para poder invertirlos:
 
-                        // Finalmente le aplicamos una máscara para deshacernos del primer bit que indica que es negativo:
-                        short mascara = 0b0111_1111_1111_1111;
+                        byte byteMSB = (byte)(((short)byteComplementoA2 & 0b1111111100000000) >> 8);
+                        byte byteLSB = (byte)(((short)byteComplementoA2 & 0b0000000011111111));
 
-                        // Haciendo la operación AND para cambiar el primer bit a 0
-                        intermedio = (short)(intermedio & mascara);
+                        // Primero invertimos todos los bits y le sumamos 1 al LSB:
+                        byte intermedioMSB = (byte)~byteMSB;
+                        intermedioMSB = (byte)(intermedioMSB & 0b00011111); // Le quitamos los bits que no formaban parte de la información
+                        byte intermedioLSB = (byte)~byteLSB;
+                        intermedioLSB += 1;
 
-                        valor_covnertido = (-1) * intermedio;
 
-                        return valor_covnertido;
+                        int final = (intermedioMSB << 8) | intermedioLSB;
+
+                        valor_convertido = (-1) * final;
+
+                        return valor_convertido;
                     }
+
                 }
             }
         }
 
+        public static void WriteToCSV(List<trackInfo_struct> listaTracks, List<dataRecord_struct> listaDataRecords, string filePath)
+        {
+            if (listaTracks == null || !listaTracks.Any() || listaDataRecords == null || !listaDataRecords.Any())
+            {
+                MessageBox.Show("La lista está vacía o nula.");
+                return;
+            }
 
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+
+                    //string BDSregisterDataString = "Aquí irán los data fields del BDS register"; // Almacenar un string con la info que cambiará en función de los registros presentes
+
+                    // Escribimos los títulos de las columnas del archivo CSV
+                    /*writer.WriteLine("# Data record;CAT;LEN;data LEN;SIC;SAC;Time;TYP;SIM;RDP;SPI;RAB;TST;ERR;XPP;ME;MI;FOE/FRI;ADSB;" +
+                        "SCN;PAI;Polar coor: rho [NM};Polar coord: theta [deg];Mode-3/A Code not Validated;Mode-3/A Garbled Code;" +
+                        "Mode-3/A not from the last scan;Mode-3/A_Code;Flight Level Code not Validated;Flight Level Garbled code;Flight Level;" +
+                        "SSR plot runlength [deg];Number of received replies for M(SSR);Amplitud of M(SSR) reply [dBm];Primary plot runlength [deg];" +
+                        "Amplitude of primary plot [dBm];Difference in range between PSR and SSR plot [NM];Difference in azimuth between PSR and SSR plot [deg];" +
+                        "Aircraft address;Aircraft identification;" + BDSregisterDataString + ";Track number;Cartesian coord: x [NM];Cartesian coord: y [NM];" +
+                        "Groundspeed [kt];Heading [deg];CNF;RAD;DOU;MAH;CDM;TRE;GHO;SUP;TCC;Height measured (3D radar) [ft];COM;STAT;SI;MSSC;ARC;" +
+                        "AIC;B1A;B1B");*/
+
+                    writer.WriteLine("# Data record;CAT;LEN;data LEN;SIC;SAC;Time;[;*;*;*;*;*;Target Report Descriptor;*;*;*;*;*;" +
+                        "*;];Polar coor: rho [NM};Polar coord: theta [deg];Mode-3/A Code not Validated;Mode-3/A Garbled Code;" +
+                        "Mode-3/A not from the last scan;Mode-3/A_Code;Flight Level Code not Validated;Flight Level Garbled code;Flight Level;" +
+                        "SSR plot runlength [deg];Number of received replies for M(SSR);Amplitud of M(SSR) reply [dBm];Primary plot runlength [deg];" +
+                        "Amplitude of primary plot [dBm];Difference in range between PSR and SSR plot [NM];Difference in azimuth between PSR and SSR plot [deg];" +
+                        "Aircraft address;Aircraft identification;[;*;*;BDS code 4,0 (Selected Vertical Information);*;*;];[;*;BDS code 5,0 (Track and Turn Report);*;];" +
+                        "[;*;BDS code 6,0 (Heading and Speed Report);*;];Track number;Cartesian coord: x [NM];Cartesian coord: y [NM];" +
+                        "Groundspeed [kt];Heading [deg];[;*;*;*;Track Status;*;*;*;];Height measured (3D radar) [ft];[;*;*;ACAS Capability and Flight Satus;*;" +
+                        "*;*;];Corrected altitude;[;Geodesic coordinates;]");
+
+                    writer.WriteLine(";;;;;;;TYP;SIM;RDP;SPI;RAB;TST;ERR;XPP;ME;MI;FOE/FRI;ADSB;" +
+                        "SCN;PAI;;;;;;;;;;;;;;;;;;" +
+                        ";MCP/FCU Selected Altitude;FMS Selected Altitude;Barometric Pressure Setting;VNAV mode;ALT HOLD mode;Approach mode;Target Altitude Source;Roll Angle;" +
+                        "True Track Angle;Ground Speed;Track Angle Rate;True Airspeed;Magnetic Heading;Indicated Airspeed;Mach;Barometric Altitude Rate;Intertial Vertical Velocity;;;;" +
+                        ";;CNF;RAD;DOU;MAH;CDM;TRE;GHO;SUP;TCC;;COM;STAT;SI;MSSC;ARC;" +
+                        "AIC;B1A;B1B;;Latitude;Longitude;Altitude");
+
+                    //Ahora rellenamos las filas con los distintos tracks:
+                    int i = 1;
+                    foreach (trackInfo_struct track in listaTracks)
+                    {
+                        dataRecord_struct dataRecordEscribiendo = listaDataRecords[i - 1];
+                        string line = $"{i};{dataRecordEscribiendo.cat};{dataRecordEscribiendo.longitud};{dataRecordEscribiendo.datos.Length};" +
+                            $"{track.SIC};{track.SAC};{track.timeOfDay};{track.TRD.TYP};{track.TRD.SIM};{track.TRD.RDP};{track.TRD.SPI};{track.TRD.RAB};" +
+                            $"{track.TRD.TST};{track.TRD.ERR};{track.TRD.XPP};{track.TRD.ME};{track.TRD.MI};{track.TRD.FOE_FRI};{track.TRD.ADSB};" +
+                            $"{track.TRD.SCN};{track.TRD.PAI};{track.rho_polar};{track.theta_polar};{track.mode3A_V};{track.mode3A_G};{track.mode3A_L};" +
+                            $"{track.mode3A_code};{track.flightLevel_V};{track.flightLevel_G};{track.flightLevel};{track.RPC.SRL};{track.RPC.SRR};" +
+                            $"{track.RPC.SAM};{track.RPC.PRL};{track.RPC.PAM};{track.RPC.RPD};{track.RPC.APD};{track.AC_address};" +
+                            $"{track.AC_identification};{track.BDS_rData.MCP_FCU_selectedAltitude};{track.BDS_rData.FMS_selectedAltitude};" +
+                            $"{track.BDS_rData.barometricPressureSetting};{track.BDS_rData.VNAV_mode};{track.BDS_rData.altHold_mode};{track.BDS_rData.approach_mode};" +
+                            $"{track.BDS_rData.targetAltSource};{track.BDS_rData.rollAngle};{track.BDS_rData.trueTrackAngle};{track.BDS_rData.groundSpeed};" +
+                            $"{track.BDS_rData.trackAngleRate};{track.BDS_rData.trueAirspeed};{track.BDS_rData.magnetigHeading};{track.BDS_rData.indicatedAirspeed};" +
+                            $"{track.BDS_rData.MACH};{track.BDS_rData.barometricAltitudeRate};{track.BDS_rData.intertialVerticalVelocity};" +
+                            $"{track.trackNumber};{track.cartesianCoord.x};{track.cartesianCoord.y};{track.calc_groundspeed};" +
+                            $"{track.calc_heading};{track.status.CNF};{track.status.RAD};{track.status.DOU};{track.status.MAH};{track.status.CDM};{track.status.TRE};" +
+                            $"{track.status.GHO};{track.status.SUP};{track.status.TCC};{track.height3D};{track.a_status.COM};{track.a_status.STAT};" +
+                            $"{track.a_status.SI};{track.a_status.MSSC};{track.a_status.ARC};{track.a_status.AIC};{track.a_status.B1A};{track.a_status.B1B};" +
+                            $"{track.realAltitude};{track.coordenadasGeodesicas.latitude};{track.coordenadasGeodesicas.longitude};{track.coordenadasGeodesicas.height}"; writer.WriteLine(line);
+                        i++;
+                    }
+                }
+
+                MessageBox.Show("Los datos se han escrito en el archivo CSV correctamente.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Se produjo un error al escribir en el archivo CSV: {ex.Message}");
+            }
+        }
+        public static CoordinatesWGS84 coordinatesTransformation(double range, double azimuth, double aircraft_altitude) // Luego cmbiarlo para que saque una estructura de tipo coordenadas
+        {
+
+            // Antes de nada introducimos algunas constantes:
+            GeoUtils conversiones = new GeoUtils();
+
+            CoordinatesWGS84 coordenadasRadar = new CoordinatesWGS84(0.720833239, 0.0366878365, 2032.25);
+            double R_Ti = conversiones.CalculateEarthRadius(coordenadasRadar); // Radio de la tierra en la posición del radar. EL QUE HAY AHORA ES EL MEDIO
+            double h_Ri = 2.007 + 25.25; // Altitud del radar. Hemos sumado la elevación a la altura de la antena
+
+            // En primer lugar nos calcularemos la elevación del target:
+            double numerador = 2 * R_Ti * (aircraft_altitude - h_Ri) + Math.Pow(aircraft_altitude, 2) - Math.Pow(h_Ri, 2) - Math.Pow(range, 2);
+            double denominador = 2 * range * (R_Ti + h_Ri);
+            double elevation = GeoUtils.CalculateElevation(coordenadasRadar, R_Ti, range * 1852, aircraft_altitude * 0.305);
+
+            CoordinatesPolar coordenadasPolaresRadar = new CoordinatesPolar(range * 1852, azimuth * (Math.PI / 180), elevation);
+
+            // Una vez tenemos la elevación, procedemos a hacer los correspondientes cambios de coordenadas con ayuda del GeoUtils:
+            CoordinatesXYZ coordenadasCartesianasRadar = GeoUtils.change_radar_spherical2radar_cartesian(coordenadasPolaresRadar);
+            CoordinatesXYZ coordenadasGeocentricas = conversiones.change_radar_cartesian2geocentric(coordenadasRadar, coordenadasCartesianasRadar);
+            CoordinatesWGS84 coordenadasGeodesicas = conversiones.change_geocentric2geodesic(coordenadasGeocentricas);
+
+            return coordenadasGeodesicas;
+        }
         private void dataRecordTable_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
 
@@ -1622,7 +2000,7 @@ namespace Asterix
             {
 
                 // Crear una instancia del segundo formulario (Form2)
-                Form2 form2 = new Form2(miListaDataRecord, miListaTrackInfo, claveSeleccionada, dataFieldsP,keySelected);
+                Form2 form2 = new Form2(miListaDataRecord, miListaTrackInfo, claveSeleccionada, dataFieldsP, keySelected);
                 // Mostrar el formulario
                 form2.Show();
             }
@@ -1630,10 +2008,34 @@ namespace Asterix
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Form3 form3 = new Form3();
+            Form3 form3 = new Form3(miListaDataRecord, miListaTrackInfo, dataFieldsP);
 
             // Mostrar el formulario
             form3.Show();
+        }
+        private string downloadsDirectory = @"C:\Users\oscar\Downloads"; // Directorio inicial
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Selecciona la carpeta de destino";
+                folderBrowserDialog.SelectedPath = downloadsDirectory;
+
+                DialogResult result = folderBrowserDialog.ShowDialog();
+
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+                {
+                    // Actualizamos la variable downloadsDirectory con la carpeta seleccionada
+                    downloadsDirectory = folderBrowserDialog.SelectedPath;
+
+                    // Puedes mostrar un mensaje con la nueva carpeta seleccionada
+                    MessageBox.Show("Nueva carpeta seleccionada: " + downloadsDirectory);
+
+                    // Ahora puedes llamar a WriteToCSV con la nueva carpeta
+                    WriteToCSV(miListaTrackInfo, miListaDataRecord, downloadsDirectory);
+                }
+            }
         }
     }
 }

@@ -33,6 +33,7 @@
             dataRecordTable = new DataGridView();
             dataRecordTableOneClick = new DataGridView();
             button1 = new Button();
+            button2 = new Button();
             ((System.ComponentModel.ISupportInitialize)dataRecordTable).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataRecordTableOneClick).BeginInit();
             SuspendLayout();
@@ -81,7 +82,7 @@
             // 
             // button1
             // 
-            button1.Location = new Point(523, 92);
+            button1.Location = new Point(379, 105);
             button1.Name = "button1";
             button1.Size = new Size(183, 85);
             button1.TabIndex = 4;
@@ -89,11 +90,22 @@
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
+            // button2
+            // 
+            button2.Location = new Point(590, 105);
+            button2.Name = "button2";
+            button2.Size = new Size(169, 85);
+            button2.TabIndex = 5;
+            button2.Text = "CSV";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(dataRecordTableOneClick);
             Controls.Add(dataRecordTable);
@@ -115,5 +127,6 @@
         private DataGridView dataRecordTable;
         private DataGridView dataRecordTableOneClick;
         private Button button1;
+        private Button button2;
     }
 }

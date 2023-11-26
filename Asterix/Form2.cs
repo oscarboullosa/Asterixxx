@@ -32,7 +32,7 @@ namespace Asterix
             this.claveSeleccionada = claveSeleccionada;
             int i = 0;
             int j = 0;
-            while (i < dataFieldsP.Count - 1)
+            while (i < miListaTrackInfo[keySelected].FRN.Count)
             {
                
                     dataGridView1.Rows.Add(i+1 , miListaTrackInfo[keySelected].FRN[i], miListaTrackInfo[keySelected].DataItem[i], miListaTrackInfo[keySelected].description[i]);
@@ -84,15 +84,33 @@ namespace Asterix
                 {
                     string content = "I048/020  Target Report Descriptor\n" +
                         "Definition: Type and properties of the target report.\n" +
-                        $"Type: {miListaTrackInfo[keySelected].TRD}\n" +
-                        "= 0 No detection\n"+
-                        "= 1 Single PSR detection\n"+
-                        "= 2 Single SSR detection\n"+
-                        "= 3 SSR + PSR detection\n"+
-                        "= 4 Single ModeS All-Call\n"+
-                        "= 5 Single ModeS Roll-Call\n"+
-                        "= 6 ModeS All-Call + PSR\n"+
-                        "= 7 ModeS Roll-Call +PSR";
+                        $"TYP: {miListaTrackInfo[keySelected].TRD.TYP}\n" +
+                        "       = 0 No detection\n" +
+                        "       = 1 Single PSR detection\n" +
+                        "       = 2 Single SSR detection\n" +
+                        "       = 3 SSR + PSR detection\n" +
+                        "       = 4 Single ModeS All-Call\n" +
+                        "       = 5 Single ModeS Roll-Call\n" +
+                        "       = 6 ModeS All-Call + PSR\n" +
+                        "       = 7 ModeS Roll-Call +PSR\n\n" +
+                        $"SIM: {miListaTrackInfo[keySelected].TRD.SIM}\n" +
+                        "       = False Actual Target Report\n" +
+                        "       = True Simulated Target Report\n\n" +
+                        $"RDP: {miListaTrackInfo[keySelected].TRD.RDP}\n" +
+                        "       = False Report from RDP Chain 1\n" +
+                        "       = True Report from RDP Chain 2\n\n" +
+                        $"SPI: {miListaTrackInfo[keySelected].TRD.SPI}\n" +
+                        "       = False Absence of SPI\n" +
+                        "       = True Special Position Identification\n\n" +
+                        $"RAB: {miListaTrackInfo[keySelected].TRD.RAB}\n" +
+                        "       = False Report from aircraft transponder\n" +
+                        "       =True Report from field monitor (fixed transponder)\n\n" +
+                        "NOTES\n" +
+                        "• For Mode S aircraft, the SPI information is also contained in I048/230.\n" +
+                        "• To bits 3/2 (FOE/FRI): IFF interrogators supporting a three level classification of the processing of the Mode 4 interrogation result shall encode the detailed response information in data item M4E of the Reserved Expansion Field of category 048. In this case the value for FOE/FRI in I048/020 shall be set to “00”.\n" +
+                        "• To bit 6 (XPP): This bit shall always be set when the X-pulse has been extracted, independent from the Mode it was extracted with. \n" +
+                        "• To bit 7 (ERR): This bit set to “1” indicates that the range of the target in data item I048/040 is beyond the maximum range in data item I048/040. In In this case – and this case only - the ERR Data Item in the Reserved Expansion Field shall provide the range value of the Measured Position in Polar Coordinates.";
+
                     richTextBox1.Text = content;
 
                     richTextBox1.Select(0, 34); // Ejemplo: desde el carácter 20 hasta el 30
@@ -256,10 +274,28 @@ namespace Asterix
                 else if(miListaTrackInfo[keySelected].FRN[keySel] == "10")
                 {
                     string content = "I048/250  Mode S MB Data\n" +
-                        "Definition: Mode S Comm B data as extracted from the aircraft transponder.\n" +
-                        $"BDS1 {miListaTrackInfo[keySelected].BDS_rData.address_1}\n" +
-                        $"BDS2 {miListaTrackInfo[keySelected].BDS_rData.address_2}\n" +
-                        $"Data {miListaTrackInfo[keySelected].BDS_rData.data}";
+                        "Definition: Mode S Comm B data as extracted from the aircraft transponder.\n\n" +
+                        "BDS 4.0 Selected Vertical Intention\n" +
+                        $"MCP/FCU Selected Altitude: {miListaTrackInfo[keySelected].BDS_rData.MCP_FCU_selectedAltitude}ft\n" +
+                        $"FMS Selected Altitude: {miListaTrackInfo[keySelected].BDS_rData.FMS_selectedAltitude}ft\n" +
+                        $"Barometric Pressure Setting: {miListaTrackInfo[keySelected].BDS_rData.barometricAltitudeRate}MB\n" +
+                        $"Vnav Mode: {miListaTrackInfo[keySelected].BDS_rData.VNAV_mode}\n" +
+                        $"Alt Hold Mode: {miListaTrackInfo[keySelected].BDS_rData.altHold_mode}\n" +
+                        $"Approach Mode: {miListaTrackInfo[keySelected].BDS_rData.approach_mode}\n" +
+                        $"Target Altitude Source: {miListaTrackInfo[keySelected].BDS_rData.targetAltSource}\n\n" +
+                        "BDS 5.0 Track and Turn Report\n" +
+                        $"Roll Angle: {miListaTrackInfo[keySelected].BDS_rData.rollAngle}º\n" +
+                        $"True Track Angle: {miListaTrackInfo[keySelected].BDS_rData.trackAngleRate}º\n" +
+                        $"Ground Speed: {miListaTrackInfo[keySelected].BDS_rData.groundSpeed}knot\n" +
+                        $"Track Angle Rate: {miListaTrackInfo[keySelected].BDS_rData.trackAngleRate}º/s\n" +
+                        $"True Airspeed: {miListaTrackInfo[keySelected].BDS_rData.trueAirspeed}knot\n\n" +
+                        "BDS 6,0 - Heading and Speed Report\n" +
+                        $"Magnetic Heading: {miListaTrackInfo[keySelected].BDS_rData.magnetigHeading}º\n" +
+                        $"Indicated Airspeed: {miListaTrackInfo[keySelected].BDS_rData.indicatedAirspeed}knot\n" +
+                        $"Mach: {miListaTrackInfo[keySelected].BDS_rData.MACH}MACH\n" +
+                        $"Barometric Altitude Rate: {miListaTrackInfo[keySelected].BDS_rData.barometricAltitudeRate}ft/min\n" +
+                        $"Intertial Vertical Velocity: {miListaTrackInfo[keySelected].BDS_rData.intertialVerticalVelocity} ft/min";
+
                     richTextBox1.Text = content;
                     richTextBox1.Select(0, 24); // Ejemplo: desde el carácter 20 hasta el 30
 
@@ -274,6 +310,19 @@ namespace Asterix
                         $"Track Number {miListaTrackInfo[keySelected].trackNumber}";
                     richTextBox1.Text = content;
                     richTextBox1.Select(0, 22); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if(miListaTrackInfo[keySelected].FRN[keySel] == "12")
+                {
+                    string content = "I048/042 Calculated Position in Cartesian Co-ordinates\n" +
+                        "Definition: Calculated position of an aircraft in Cartesian co-ordinates.\n" +
+                        $"X: {miListaTrackInfo[keySelected].cartesianCoord.x}\n" +
+                        $"Y: {miListaTrackInfo[keySelected].cartesianCoord.y}\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 54); // Ejemplo: desde el carácter 20 hasta el 30
 
                     // Aplicar formato (negrita y tamaño de fuente más grande)
                     richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
@@ -324,6 +373,68 @@ namespace Asterix
                     richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
                     richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
                 }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "15")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "16")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "17")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "18")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "19")
+                {
+                    string content = "I048/110 Height Measured by a 3D Radar\n" +
+                        "Definition: Height of a target as measured by a 3D radar. The height shall use\r\nmean sea level as the zero reference level.\n" +
+                        $"3D Height: {miListaTrackInfo[keySelected].height3D}ft";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 38); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "20")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
                 else if (miListaTrackInfo[keySelected].FRN[keySel] == "21")
                 {
                     string content = "I048/230  Communications/ACAS Capability and Flight Status\n" +
@@ -366,6 +477,76 @@ namespace Asterix
                     richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
                     richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
 
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "22")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "23")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "24")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "25")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "26")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "27")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
+                }
+                else if (miListaTrackInfo[keySelected].FRN[keySel] == "28")
+                {
+                    string content = "Not decoded\n";
+                    richTextBox1.Text = content;
+                    richTextBox1.Select(0, 11); // Ejemplo: desde el carácter 20 hasta el 30
+
+                    // Aplicar formato (negrita y tamaño de fuente más grande)
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                    richTextBox1.SelectionFont = new Font(richTextBox1.Font.FontFamily, 14); // Tamaño de fuente 14
                 }
 
 
