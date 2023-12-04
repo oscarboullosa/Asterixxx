@@ -27,7 +27,24 @@ namespace Asterix
         public int minutos { get; set; }
         public int segundos { get; set; }
         public int milisegundos { get; set; }
-        public string description { get; set; }
+        //public string description { get; set; }
+        public time(int horas, int minutos, int segundos, int milisegundos)
+        {
+            this.horas = horas;
+            this.minutos = minutos;
+            this.segundos = segundos;
+            this.milisegundos = milisegundos;
+        }
+        public DateTime ToDateTime()
+        {
+            return DateTime.MinValue.Add(new TimeSpan(0, horas, minutos, segundos, milisegundos));
+        }
+
+
+        public TimeSpan ToTimeSpan()
+        {
+            return new TimeSpan(0, horas, minutos, segundos, milisegundos);
+        }
 
     }
 
@@ -203,6 +220,7 @@ namespace Asterix
 
         private void buttonAbrirArchivo_Click(object sender, EventArgs e)
         {
+            
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.Filter = "Archivos AST (*.ast)|*.ast|Todos los archivos (*.*)|*.*";
@@ -231,7 +249,8 @@ namespace Asterix
                         MessageBox.Show($"Longitud del fichero: {longitud_fichero}");
                         int rowies = 0;
                         //Extraido del while de debajo para pruebas, debe ir esto: direccionDataRecordProcesando < fileBytes.Length
-                        while (numeración<4) //Nos permite crear una lista con todos los data records de la categoría 48
+                        //numeración<5
+                        while (numeración < 50000) //Nos permite crear una lista con todos los data records de la categoría 48
                         {
 
                             longitudDataRecordProcesando = fileBytes[direccionDataRecordProcesando + 2];
@@ -754,7 +773,7 @@ namespace Asterix
                                         puntoProcesado += 1;
 
                                         // Comrpobamos si está activo el bit de extensión (FX):
-                                        bool siDataSubield_FX = (datosProcesando[puntoProcesado] & (1 << (0))) != 0;
+                                        bool siDataSubield_FX = (datosProcesando[puntoProcesado-1] & (1 << (0))) != 0;
                                         if (siDataSubield_FX)
                                         {
                                             //Si es así, añadiremos los campos de extensión como 11, 12, aprovechando así la lista existente:
