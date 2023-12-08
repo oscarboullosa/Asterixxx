@@ -3,6 +3,8 @@ using System.IO;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 using MultiCAT6.Utils;
+using Microsoft.Win32;
+using System.Text;
 
 namespace Asterix
 {
@@ -26,24 +28,24 @@ namespace Asterix
         public int horas { get; set; }
         public int minutos { get; set; }
         public int segundos { get; set; }
-        public int milisegundos { get; set; }
+        //public int milisegundos { get; set; }
         //public string description { get; set; }
-        public time(int horas, int minutos, int segundos, int milisegundos)
+        public time(int horas, int minutos, int segundos)
         {
             this.horas = horas;
             this.minutos = minutos;
             this.segundos = segundos;
-            this.milisegundos = milisegundos;
+            //this.milisegundos = milisegundos;
         }
         public DateTime ToDateTime()
         {
-            return DateTime.MinValue.Add(new TimeSpan(0, horas, minutos, segundos, milisegundos));
+            return DateTime.MinValue.Add(new TimeSpan(0, horas, minutos, segundos));
         }
 
 
         public TimeSpan ToTimeSpan()
         {
-            return new TimeSpan(0, horas, minutos, segundos, milisegundos);
+            return new TimeSpan(0, horas, minutos, segundos);
         }
 
     }
@@ -246,11 +248,12 @@ namespace Asterix
                         int numeración = 1;
                         int longitudDataRecordProcesando = fileBytes[2]; //En el caso del primer data record estará aquí ¡¡¡Pensar una forma en que me lea los dos bytes del length!!!
                         int longitud_fichero = fileBytes.Length;
-                        MessageBox.Show($"Longitud del fichero: {longitud_fichero}");
+                        MessageBox.Show("Debido a que es un fichero muy grande, por favor, espere unos minutos...\n Agradecemos su paciencia :)");
+                        //MessageBox.Show($"Longitud del fichero: {longitud_fichero}");
                         int rowies = 0;
                         //Extraido del while de debajo para pruebas, debe ir esto: direccionDataRecordProcesando < fileBytes.Length
                         //numeración<5
-                        while (numeración < 50000) //Nos permite crear una lista con todos los data records de la categoría 48
+                        while (direccionDataRecordProcesando < fileBytes.Length) //Nos permite crear una lista con todos los data records de la categoría 48
                         {
 
                             longitudDataRecordProcesando = fileBytes[direccionDataRecordProcesando + 2];
@@ -452,7 +455,7 @@ namespace Asterix
                                         t.horas = horas;
                                         t.minutos = minutos;
                                         t.segundos = segundos;
-                                        t.milisegundos = milisegundos;
+                                        //t.milisegundos = milisegundos;
 
                                         track.timeOfDay = t;
                                         track.description.Add("Time-of-Day");
@@ -1875,6 +1878,7 @@ namespace Asterix
 
             try
             {
+                var csv = new StringBuilder();//mirar ek using
                 using (StreamWriter writer = new StreamWriter(filePath))
                 {
 
@@ -1889,8 +1893,8 @@ namespace Asterix
                         "Aircraft address;Aircraft identification;" + BDSregisterDataString + ";Track number;Cartesian coord: x [NM];Cartesian coord: y [NM];" +
                         "Groundspeed [kt];Heading [deg];CNF;RAD;DOU;MAH;CDM;TRE;GHO;SUP;TCC;Height measured (3D radar) [ft];COM;STAT;SI;MSSC;ARC;" +
                         "AIC;B1A;B1B");*/
-
-                    writer.WriteLine("# Data record;CAT;LEN;data LEN;SIC;SAC;Time;[;*;*;*;*;*;Target Report Descriptor;*;*;*;*;*;" +
+                    MessageBox.Show("Es un archivo muy largo, por favor espere mientras se termina de escribir...");
+                    csv.AppendLine("# Data record;CAT;LEN;data LEN;SIC;SAC;Time;[;*;*;*;*;*;Target Report Descriptor;*;*;*;*;*;" +
                         "*;];Polar coor: rho [NM};Polar coord: theta [deg];Mode-3/A Code not Validated;Mode-3/A Garbled Code;" +
                         "Mode-3/A not from the last scan;Mode-3/A_Code;Flight Level Code not Validated;Flight Level Garbled code;Flight Level;" +
                         "SSR plot runlength [deg];Number of received replies for M(SSR);Amplitud of M(SSR) reply [dBm];Primary plot runlength [deg];" +
@@ -1900,7 +1904,7 @@ namespace Asterix
                         "Groundspeed [kt];Heading [deg];[;*;*;*;Track Status;*;*;*;];Height measured (3D radar) [ft];[;*;*;ACAS Capability and Flight Satus;*;" +
                         "*;*;];Corrected altitude;[;Geodesic coordinates;]");
 
-                    writer.WriteLine(";;;;;;;TYP;SIM;RDP;SPI;RAB;TST;ERR;XPP;ME;MI;FOE/FRI;ADSB;" +
+                    csv.AppendLine(";;;;;;;TYP;SIM;RDP;SPI;RAB;TST;ERR;XPP;ME;MI;FOE/FRI;ADSB;" +
                         "SCN;PAI;;;;;;;;;;;;;;;;;;" +
                         ";MCP/FCU Selected Altitude;FMS Selected Altitude;Barometric Pressure Setting;VNAV mode;ALT HOLD mode;Approach mode;Target Altitude Source;Roll Angle;" +
                         "True Track Angle;Ground Speed;Track Angle Rate;True Airspeed;Magnetic Heading;Indicated Airspeed;Mach;Barometric Altitude Rate;Intertial Vertical Velocity;;;;" +
@@ -1913,7 +1917,7 @@ namespace Asterix
                     {
                         dataRecord_struct dataRecordEscribiendo = listaDataRecords[i - 1];
                         string line = $"{i};{dataRecordEscribiendo.cat};{dataRecordEscribiendo.longitud};{dataRecordEscribiendo.datos.Length};" +
-                            $"{track.SIC};{track.SAC};{track.timeOfDay};{track.TRD.TYP};{track.TRD.SIM};{track.TRD.RDP};{track.TRD.SPI};{track.TRD.RAB};" +
+                            $"{track.SIC};{track.SAC};{track.timeOfDay.horas}:{track.timeOfDay.minutos}:{track.timeOfDay.segundos};{track.TRD.TYP};{track.TRD.SIM};{track.TRD.RDP};{track.TRD.SPI};{track.TRD.RAB};" +
                             $"{track.TRD.TST};{track.TRD.ERR};{track.TRD.XPP};{track.TRD.ME};{track.TRD.MI};{track.TRD.FOE_FRI};{track.TRD.ADSB};" +
                             $"{track.TRD.SCN};{track.TRD.PAI};{track.rho_polar};{track.theta_polar};{track.mode3A_V};{track.mode3A_G};{track.mode3A_L};" +
                             $"{track.mode3A_code};{track.flightLevel_V};{track.flightLevel_G};{track.flightLevel};{track.RPC.SRL};{track.RPC.SRR};" +
@@ -1927,11 +1931,13 @@ namespace Asterix
                             $"{track.calc_heading};{track.status.CNF};{track.status.RAD};{track.status.DOU};{track.status.MAH};{track.status.CDM};{track.status.TRE};" +
                             $"{track.status.GHO};{track.status.SUP};{track.status.TCC};{track.height3D};{track.a_status.COM};{track.a_status.STAT};" +
                             $"{track.a_status.SI};{track.a_status.MSSC};{track.a_status.ARC};{track.a_status.AIC};{track.a_status.B1A};{track.a_status.B1B};" +
-                            $"{track.realAltitude};{track.coordenadasGeodesicas.latitude};{track.coordenadasGeodesicas.longitude};{track.coordenadasGeodesicas.height}"; writer.WriteLine(line);
+                            $"{track.realAltitude};{track.coordenadasGeodesicas.latitude};{track.coordenadasGeodesicas.longitude};{track.coordenadasGeodesicas.height}";
+                        csv.AppendLine(line);
                         i++;
                     }
-                }
 
+                }
+                File.WriteAllText(filePath, csv.ToString());
                 MessageBox.Show("Los datos se han escrito en el archivo CSV correctamente.");
             }
             catch (Exception ex)
@@ -1945,7 +1951,7 @@ namespace Asterix
             // Antes de nada introducimos algunas constantes:
             GeoUtils conversiones = new GeoUtils();
 
-            CoordinatesWGS84 coordenadasRadar = new CoordinatesWGS84(0.720833239, 0.0366878365, 2032.25);
+            CoordinatesWGS84 coordenadasRadar = new CoordinatesWGS84(0.720833239, 0.0366878365, 27.257);
             double R_Ti = conversiones.CalculateEarthRadius(coordenadasRadar); // Radio de la tierra en la posición del radar. EL QUE HAY AHORA ES EL MEDIO
             double h_Ri = 2.007 + 25.25; // Altitud del radar. Hemos sumado la elevación a la altura de la antena
 
@@ -2001,7 +2007,7 @@ namespace Asterix
                     dataRecordTableOneClick.Rows.Clear();
 
                     // Intenta agregar la primera fila nuevamente
-                    dataRecordTableOneClick.Rows.Add(claveSeleccionada, track.timeOfDay.horas + ":" + track.timeOfDay.minutos + ":" + track.timeOfDay.segundos + ":" + track.timeOfDay.milisegundos, (item.longitud - 3).ToString(), dataFieldsP.Count);
+                    dataRecordTableOneClick.Rows.Add(claveSeleccionada, track.timeOfDay.horas + ":" + track.timeOfDay.minutos + ":" + track.timeOfDay.segundos, (item.longitud - 3).ToString(), dataFieldsP.Count);
 
                     // Refresca la tabla
                     dataRecordTableOneClick.Refresh();
@@ -2032,14 +2038,14 @@ namespace Asterix
             // Mostrar el formulario
             form3.Show();
         }
-        private string downloadsDirectory = @"C:\Users\oscar\Downloads"; // Directorio inicial
-
+        //private string downloadsDirectory = @"C:\Users\oscar\Downloads"; // Directorio inicial
+        string downloadsDirectory = "";
         private void button2_Click(object sender, EventArgs e)
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Selecciona la carpeta de destino";
-                folderBrowserDialog.SelectedPath = downloadsDirectory;
+                //folderBrowserDialog.SelectedPath = downloadsDirectory;
 
                 DialogResult result = folderBrowserDialog.ShowDialog();
 
@@ -2047,7 +2053,7 @@ namespace Asterix
                 {
                     // Actualizamos la variable downloadsDirectory con la carpeta seleccionada
                     downloadsDirectory = folderBrowserDialog.SelectedPath;
-
+                    downloadsDirectory = downloadsDirectory + "\\miArchivo.csv";//REVISAR
                     // Puedes mostrar un mensaje con la nueva carpeta seleccionada
                     MessageBox.Show("Nueva carpeta seleccionada: " + downloadsDirectory);
 
@@ -2055,6 +2061,13 @@ namespace Asterix
                     WriteToCSV(miListaTrackInfo, miListaDataRecord, downloadsDirectory);
                 }
             }
+            /*SaveFileDialog Guardar = new SaveFileDialog();
+            Guardar.Filter = "Comma separated value |*.csv";
+            if (Guardar.ShowDialog() == true)
+            {
+                string filePath = Guardar.FileName;
+                CSV(filePath);
+            }*/
         }
     }
 }

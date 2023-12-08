@@ -8,10 +8,19 @@
     ".NETCoreApp,Version=v6.0": {
       "Asterix/1.0.0": {
         "dependencies": {
-          "GMap.NET.WinForms": "2.1.7"
+          "GMap.NET.WinForms": "2.1.7",
+          "SharpKml": "1.1.0"
         },
         "runtime": {
           "Asterix.dll": {}
+        }
+      },
+      "DotNetZip.Reduced/1.9.1.8": {
+        "runtime": {
+          "lib/net20/Ionic.Zip.Reduced.dll": {
+            "assemblyVersion": "1.9.1.8",
+            "fileVersion": "1.9.1.8"
+          }
         }
       },
       "EntityFramework/6.4.4": {
@@ -110,6 +119,17 @@
             "rid": "win-x86",
             "assetType": "native",
             "fileVersion": "4.6.25512.1"
+          }
+        }
+      },
+      "SharpKml/1.1.0": {
+        "dependencies": {
+          "DotNetZip.Reduced": "1.9.1.8"
+        },
+        "runtime": {
+          "lib/net40/SharpKml.dll": {
+            "assemblyVersion": "1.0.4638.18211",
+            "fileVersion": "1.1.0.0"
           }
         }
       },
@@ -233,6 +253,13 @@
       "serviceable": false,
       "sha512": ""
     },
+    "DotNetZip.Reduced/1.9.1.8": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-7QuPI2xAhLc1fF+tr5rc4PzgnhsOC1tjt4NSqTjg4yt0EbLz+vRTCvFk01fgUO47fHvrAcsMmtZRxBFG2E+9Ew==",
+      "path": "dotnetzip.reduced/1.9.1.8",
+      "hashPath": "dotnetzip.reduced.1.9.1.8.nupkg.sha512"
+    },
     "EntityFramework/6.4.4": {
       "type": "package",
       "serviceable": true,
@@ -316,6 +343,13 @@
       "sha512": "sha512-YhEdSQUsTx+C8m8Bw7ar5/VesXvCFMItyZF7G1AUY+OM0VPZUOeAVpJ4Wl6fydBGUYZxojTDR3I6Bj/+BPkJNA==",
       "path": "runtime.win-x86.runtime.native.system.data.sqlclient.sni/4.4.0",
       "hashPath": "runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
+    },
+    "SharpKml/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/ClBylpSOnfvYW14CLz2TtqIii4ZjajSBM+UCUe+pFJalFdS/hbLLDA+haDVv8b6E+kMfOxF5GnBptmoAwgcrw==",
+      "path": "sharpkml/1.1.0",
+      "hashPath": "sharpkml.1.1.0.nupkg.sha512"
     },
     "Stub.System.Data.SQLite.Core.NetStandard/1.0.115.5": {
       "type": "package",

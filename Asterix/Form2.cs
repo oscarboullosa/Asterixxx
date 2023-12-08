@@ -67,7 +67,7 @@ namespace Asterix
                 {
                     string content = "I048/140 Time of Day\n" +
                         "Definition: Absolute time stamping expressed as Co-ordinated Universal Time (UTC).\n" +
-                        $"Time of Day: {miListaTrackInfo[keySelected].timeOfDay.horas}h:{miListaTrackInfo[keySelected].timeOfDay.minutos}min:{miListaTrackInfo[keySelected].timeOfDay.segundos}s:{miListaTrackInfo[keySelected].timeOfDay.milisegundos}ms\n" +
+                        $"Time of Day: {miListaTrackInfo[keySelected].timeOfDay.horas}h:{miListaTrackInfo[keySelected].timeOfDay.minutos}min:{miListaTrackInfo[keySelected].timeOfDay.segundos}s\n" +
                         "Acceptable Range of values: 0 ≤ Time-of-Day ≤ 24 hrs, LSB = 2^-7 seconds = 1/128 seconds\n\n" +
                         "NOTES \n" +
                         "1. The time of day value is reset to 0 each day at midnight.\n" +

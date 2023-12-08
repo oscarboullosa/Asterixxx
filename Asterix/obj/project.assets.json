@@ -2,6 +2,15 @@
   "version": 3,
   "targets": {
     "net6.0-windows7.0": {
+      "DotNetZip.Reduced/1.9.1.8": {
+        "type": "package",
+        "compile": {
+          "lib/net20/Ionic.Zip.Reduced.dll": {}
+        },
+        "runtime": {
+          "lib/net20/Ionic.Zip.Reduced.dll": {}
+        }
+      },
       "EntityFramework/6.4.4": {
         "type": "package",
         "dependencies": {
@@ -183,6 +192,18 @@
             "assetType": "native",
             "rid": "win-x86"
           }
+        }
+      },
+      "SharpKml/1.1.0": {
+        "type": "package",
+        "dependencies": {
+          "DotNetZip.Reduced": "1.9.1.8"
+        },
+        "compile": {
+          "lib/net40/SharpKml.dll": {}
+        },
+        "runtime": {
+          "lib/net40/SharpKml.dll": {}
         }
       },
       "Stub.System.Data.SQLite.Core.NetStandard/1.0.115.5": {
@@ -444,6 +465,18 @@
     }
   },
   "libraries": {
+    "DotNetZip.Reduced/1.9.1.8": {
+      "sha512": "7QuPI2xAhLc1fF+tr5rc4PzgnhsOC1tjt4NSqTjg4yt0EbLz+vRTCvFk01fgUO47fHvrAcsMmtZRxBFG2E+9Ew==",
+      "type": "package",
+      "path": "dotnetzip.reduced/1.9.1.8",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "dotnetzip.reduced.1.9.1.8.nupkg.sha512",
+        "dotnetzip.reduced.nuspec",
+        "lib/net20/Ionic.Zip.Reduced.dll"
+      ]
+    },
     "EntityFramework/6.4.4": {
       "sha512": "yj1+/4tci7Panu3jKDHYizxwVm0Jvm7b7m057b5h4u8NUHGCR8WIWirBTw+8EptRffwftIWPBeIRGNKD1ewEMQ==",
       "type": "package",
@@ -805,6 +838,18 @@
         "runtimes/win-x86/native/sni.dll",
         "useSharedDesignerContext.txt",
         "version.txt"
+      ]
+    },
+    "SharpKml/1.1.0": {
+      "sha512": "/ClBylpSOnfvYW14CLz2TtqIii4ZjajSBM+UCUe+pFJalFdS/hbLLDA+haDVv8b6E+kMfOxF5GnBptmoAwgcrw==",
+      "type": "package",
+      "path": "sharpkml/1.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net40/SharpKml.dll",
+        "sharpkml.1.1.0.nupkg.sha512",
+        "sharpkml.nuspec"
       ]
     },
     "Stub.System.Data.SQLite.Core.NetStandard/1.0.115.5": {
@@ -1344,7 +1389,8 @@
   },
   "projectFileDependencyGroups": {
     "net6.0-windows7.0": [
-      "GMap.NET.WinForms >= 2.1.7"
+      "GMap.NET.WinForms >= 2.1.7",
+      "SharpKml >= 1.1.0"
     ]
   },
   "packageFolders": {
@@ -1394,6 +1440,10 @@
           "GMap.NET.WinForms": {
             "target": "Package",
             "version": "[2.1.7, )"
+          },
+          "SharpKml": {
+            "target": "Package",
+            "version": "[1.1.0, )"
           }
         },
         "imports": [
@@ -1418,5 +1468,27 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "El paquete \"DotNetZip.Reduced 1.9.1.8\" se restauró con \".NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1\" en lugar de la plataforma de destino del proyecto \"net6.0-windows7.0\". Puede que el paquete no sea totalmente compatible con el proyecto.",
+      "libraryId": "DotNetZip.Reduced",
+      "targetGraphs": [
+        "net6.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "El paquete \"SharpKml 1.1.0\" se restauró con \".NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1\" en lugar de la plataforma de destino del proyecto \"net6.0-windows7.0\". Puede que el paquete no sea totalmente compatible con el proyecto.",
+      "libraryId": "SharpKml",
+      "targetGraphs": [
+        "net6.0-windows7.0"
+      ]
+    }
+  ]
 }

@@ -33,5 +33,7 @@ C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-w
 C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.csproj.AssemblyReference.cache
-C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.Form3.resources
 C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.csproj.CopyComplete
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\Ionic.Zip.Reduced.dll
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\bin\Debug\net6.0-windows\SharpKml.dll
+C:\Users\oscar\Desktop\Uni\PGTA\SecondAsterix\Asterix\Asterix\obj\Debug\net6.0-windows\Asterix.PointLatLngWithAltitude.resources
